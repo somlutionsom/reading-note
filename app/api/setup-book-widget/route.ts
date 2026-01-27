@@ -37,15 +37,20 @@ export async function POST(request: NextRequest) {
       titleProp: titleProperty,
       authorProp: authorProperty,
       coverProp: coverProperty,
-      coverPropType: coverPropertyType || 'files',
+      coverPropType: coverPropertyType ?? 'files',
       statusProp: statusProperty,
-      primaryColor: theme?.primaryColor || '#6C9AC4',
-      accentColor: theme?.accentColor || '#B4D4EC',
-      backgroundColor: theme?.backgroundColor || '#FFFFFF',
-      backgroundOpacity: theme?.backgroundOpacity || 95,
-      fontColor: theme?.fontColor || '#555555',
-      fontFamily: theme?.fontFamily || 'Corbel',
+      primaryColor: theme?.primaryColor ?? '#6C9AC4',
+      accentColor: theme?.accentColor ?? '#B4D4EC',
+      backgroundColor: theme?.backgroundColor ?? '#FFFFFF',
+      backgroundOpacity: theme?.backgroundOpacity ?? 95,
+      fontColor: theme?.fontColor ?? '#555555',
+      fontFamily: theme?.fontFamily ?? 'Corbel',
     };
+
+    console.log('📝 위젯 설정 생성:', {
+      backgroundOpacity: simpleConfig.backgroundOpacity,
+      fontFamily: simpleConfig.fontFamily,
+    });
 
     const configJson = JSON.stringify(simpleConfig);
     const encodedConfig = Buffer.from(configJson, 'utf-8').toString('base64')

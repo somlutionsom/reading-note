@@ -43,18 +43,23 @@ export default function BookWidgetPage({ params }: PageProps) {
         titleProperty: decodedData.titleProp,
         authorProperty: decodedData.authorProp,
         coverProperty: decodedData.coverProp,
-        coverPropertyType: decodedData.coverPropType || 'files',
+        coverPropertyType: decodedData.coverPropType ?? 'files',
         statusProperty: decodedData.statusProp,
         // 테마 설정
         theme: {
-          primaryColor: decodedData.primaryColor || '#6C9AC4',
-          accentColor: decodedData.accentColor || '#B4D4EC',
-          backgroundColor: decodedData.backgroundColor || '#FFFFFF',
-          backgroundOpacity: decodedData.backgroundOpacity || 95,
-          fontColor: decodedData.fontColor || '#555555',
-          fontFamily: decodedData.fontFamily || 'Corbel',
+          primaryColor: decodedData.primaryColor ?? '#6C9AC4',
+          accentColor: decodedData.accentColor ?? '#B4D4EC',
+          backgroundColor: decodedData.backgroundColor ?? '#FFFFFF',
+          backgroundOpacity: decodedData.backgroundOpacity ?? 95,
+          fontColor: decodedData.fontColor ?? '#555555',
+          fontFamily: decodedData.fontFamily ?? 'Corbel',
         },
       };
+      
+      console.log('🎨 테마 설정:', {
+        backgroundOpacity: parsedConfig.theme.backgroundOpacity,
+        fontFamily: parsedConfig.theme.fontFamily,
+      });
       
       console.log('✅ 파싱된 config:', parsedConfig);
 
