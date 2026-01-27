@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
       databaseId, 
       titleProperty, 
       authorProperty, 
-      coverProperty, 
+      coverProperty,
+      coverPropertyType,
       statusProperty,
       theme 
     } = body;
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
       titleProp: titleProperty,
       authorProp: authorProperty,
       coverProp: coverProperty,
+      coverPropType: coverPropertyType || 'files',
       statusProp: statusProperty,
       primaryColor: theme?.primaryColor || '#6C9AC4',
       accentColor: theme?.accentColor || '#B4D4EC',

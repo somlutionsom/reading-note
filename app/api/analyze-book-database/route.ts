@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       titleProperty: string;
       authorProperty: string;
       coverProperty: string;
+      coverPropertyType: 'files' | 'url' | '';
       statusProperty: string;
     }>>({
       success: true,

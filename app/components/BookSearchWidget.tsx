@@ -17,6 +17,7 @@ interface WidgetConfig {
   titleProperty?: string;
   authorProperty?: string;
   coverProperty?: string;
+  coverPropertyType?: 'files' | 'url' | '';
   statusProperty?: string;
   theme?: {
     primaryColor?: string;
@@ -126,6 +127,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           titleProperty: config.titleProperty,
           authorProperty: config.authorProperty,
           coverProperty: config.coverProperty,
+          coverPropertyType: config.coverPropertyType || 'files',
           statusProperty: config.statusProperty,
           book: {
             title: book.title,

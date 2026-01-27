@@ -14,7 +14,8 @@ export async function POST(request: NextRequest) {
       databaseId, 
       titleProperty, 
       authorProperty, 
-      coverProperty, 
+      coverProperty,
+      coverPropertyType, // 'files' | 'url'
       statusProperty,
       book 
     } = body;
@@ -48,11 +49,27 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // 표지 URL 설정 (URL 타입)
+    // 표지 설정 - 파일과 미디어(files) 타입 또는 URL 타입
     if (coverProperty && book.cover) {
-      properties[coverProperty] = {
-        url: book.cover,
-      };
+      if (coverPropertyType === 'files') {
+        // 파일과 미디어 속성 (Files 타입)
+        properties[coverProperty] = {
+          files: [
+            {
+              type: 'external',
+              name: 'cover.jpg',
+              external: {
+                url: book.cover,
+              },
+            },
+          ],
+        };
+      } else {
+        // URL 속성
+        properties[coverProperty] = {
+          url: book.cover,
+        };
+      }
     }
 
     // 상태 설정 (Select 타입) - 기본값: 읽고 싶은 책
@@ -63,6 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('📚 노션에 도서 저장 중:', book.title);
+    console.log('📋 속성:', JSON.stringify(properties, null, 2));
 
     // 페이지 생성
     const page = await notion.pages.create({

@@ -225,6 +225,7 @@ interface FormData {
   titleProperty: string;
   authorProperty: string;
   coverProperty: string;
+  coverPropertyType: 'files' | 'url' | '';
   statusProperty: string;
   primaryColor: string;
   accentColor: string;
@@ -271,6 +272,7 @@ export default function BookOnboardingPage() {
     titleProperty: '',
     authorProperty: '',
     coverProperty: '',
+    coverPropertyType: '',
     statusProperty: '',
     primaryColor: '#6C9AC4',
     accentColor: '#B4D4EC',
@@ -364,6 +366,7 @@ export default function BookOnboardingPage() {
           titleProperty: data.data.titleProperty,
           authorProperty: data.data.authorProperty,
           coverProperty: data.data.coverProperty,
+          coverPropertyType: data.data.coverPropertyType || '',
           statusProperty: data.data.statusProperty,
         }));
       }
@@ -390,6 +393,7 @@ export default function BookOnboardingPage() {
           titleProperty: formData.titleProperty,
           authorProperty: formData.authorProperty,
           coverProperty: formData.coverProperty,
+          coverPropertyType: formData.coverPropertyType,
           statusProperty: formData.statusProperty,
           theme: {
             primaryColor: formData.primaryColor,

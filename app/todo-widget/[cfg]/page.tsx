@@ -43,6 +43,7 @@ export default function BookWidgetPage({ params }: PageProps) {
         titleProperty: decodedData.titleProp,
         authorProperty: decodedData.authorProp,
         coverProperty: decodedData.coverProp,
+        coverPropertyType: decodedData.coverPropType || 'files',
         statusProperty: decodedData.statusProp,
         // 테마 설정
         theme: {

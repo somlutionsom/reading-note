@@ -58,6 +58,7 @@ export class NotionService {
       titleProperty: string;
       authorProperty: string;
       coverProperty: string;
+      coverPropertyType: 'files' | 'url' | '';
       statusProperty: string;
     };
   } | {
@@ -85,18 +86,20 @@ export class NotionService {
       let authorProperty = '';
       for (const [name, prop] of Object.entries(properties)) {
         if (prop.type === 'rich_text' && 
-            (name.toLowerCase().includes('저자') || name.toLowerCase().includes('author'))) {
+            (name.toLowerCase() === 'author' || name.toLowerCase().includes('저자'))) {
           authorProperty = name;
           break;
         }
       }
 
-      // 표지 속성 찾기 (Files 또는 URL 타입)
+      // 표지 속성 찾기 (Files 또는 URL 타입, 'cover' 또는 '표지' 포함)
       let coverProperty = '';
+      let coverPropertyType: 'files' | 'url' | '' = '';
       for (const [name, prop] of Object.entries(properties)) {
         if ((prop.type === 'files' || prop.type === 'url') && 
-            (name.toLowerCase().includes('표지') || name.toLowerCase().includes('cover'))) {
+            (name.toLowerCase() === 'cover' || name.toLowerCase().includes('표지'))) {
           coverProperty = name;
+          coverPropertyType = prop.type as 'files' | 'url';
           break;
         }
       }
@@ -124,6 +127,7 @@ export class NotionService {
           titleProperty,
           authorProperty,
           coverProperty,
+          coverPropertyType,
           statusProperty,
         },
       };
