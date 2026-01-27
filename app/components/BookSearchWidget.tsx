@@ -410,7 +410,8 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
 
         .book-author {
           font-size: 9px;
-          color: ${theme.primaryColor}99;
+          color: ${theme.fontColor};
+          opacity: 0.7;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;

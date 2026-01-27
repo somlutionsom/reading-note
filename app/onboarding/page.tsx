@@ -192,7 +192,8 @@ const PreviewWidget = ({ theme }: { theme: any }) => {
                   }}>{book.title}</div>
                   <div style={{
                     fontSize: '9px',
-                    color: `${theme.primaryColor}99`,
+                    color: theme.fontColor,
+                    opacity: 0.7,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -949,7 +950,7 @@ export default function BookOnboardingPage() {
                             <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 테마 색상
                                 <span className="tooltip-trigger">?
-                                    <span className="tooltip-content">위젯 테두리, 헤더, 시계, 저자 이름에 적용됩니다</span>
+                                    <span className="tooltip-content">위젯 테두리, 헤더, 시계에 적용됩니다</span>
                                 </span>
                             </div>
                             <div className="color-picker-wrapper">
@@ -1009,9 +1010,9 @@ export default function BookOnboardingPage() {
                         </div>
                         <div className="color-option-wrapper">
                             <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                제목 색상
+                                폰트 색상
                                 <span className="tooltip-trigger">?
-                                    <span className="tooltip-content">검색 결과의 책 제목 색상에 적용됩니다</span>
+                                    <span className="tooltip-content">검색 결과의 책 제목, 저자명에 적용됩니다</span>
                                 </span>
                             </div>
                             <div className="color-picker-wrapper">
