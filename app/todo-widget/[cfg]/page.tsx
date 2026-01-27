@@ -1,12 +1,12 @@
 /**
- * 투두리스트 위젯 임베드 페이지
- * 인코딩된 설정을 받아 투두리스트를 표시
+ * 도서 검색 위젯 임베드 페이지
+ * 인코딩된 설정을 받아 도서 검색 위젯을 표시
  */
 
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { TodoList } from '@/app/components/TodoList';
+import BookSearchWidget from '@/app/components/BookSearchWidget';
 import { ErrorBoundary } from '@/app/components/ErrorBoundary';
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
@@ -16,7 +16,7 @@ interface PageProps {
   }>;
 }
 
-export default function TodoWidgetPage({ params }: PageProps) {
+export default function BookWidgetPage({ params }: PageProps) {
   const [config, setConfig] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   
@@ -35,34 +35,29 @@ export default function TodoWidgetPage({ params }: PageProps) {
       const decodedData = JSON.parse(decodedString);
       
       console.log('🔧 디코딩된 원본 데이터:', decodedData);
-      console.log('🔧 반복 할 일 (decodedData.recurring):', decodedData.recurring);
 
       const parsedConfig = {
+        // 노션 연동 설정 (선택적)
         token: decodedData.token,
         databaseId: decodedData.dbId,
-        dateProperty: decodedData.dateProp,
-        titleProperty: decodedData.titleProp,
-        recurringTodos: decodedData.recurring || [],
+        // 테마 설정
         theme: {
           primaryColor: decodedData.primaryColor,
           accentColor: decodedData.accentColor,
           backgroundColor: decodedData.backgroundColor,
           backgroundOpacity: decodedData.backgroundOpacity,
           fontColor: decodedData.fontColor,
-          checkboxStyle: decodedData.checkboxStyle || 'circle',
-          fontFamily: decodedData.fontFamily || 'Galmuri11', // 디코딩된 폰트 사용
+          fontFamily: decodedData.fontFamily || 'Corbel',
         },
       };
       
-      console.log('🔧 선택된 폰트:', decodedData.fontFamily);
-      
       console.log('✅ 파싱된 config:', parsedConfig);
-      console.log('✅ 파싱된 config.recurringTodos:', parsedConfig.recurringTodos);
 
       setConfig(parsedConfig);
     } catch (err) {
       console.error('❌ 설정 디코딩 오류:', err);
-      setError('잘못된 설정입니다.');
+      // 설정 없이도 기본 위젯 표시
+      setConfig({});
     }
   }, [resolvedParams.cfg]);
 
@@ -98,21 +93,11 @@ export default function TodoWidgetPage({ params }: PageProps) {
       alignItems: 'flex-start',
       justifyContent: 'center',
       padding: '0.5rem',
-      paddingLeft: 'calc(0.5rem + 28px)', // Increased left padding by 10px (18px -> 28px)
       background: 'transparent',
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '600px',
-      }}>
-        <ErrorBoundary>
-          <TodoList
-            configId="embedded"
-            config={config}
-            theme={config.theme}
-          />
-        </ErrorBoundary>
-      </div>
+      <ErrorBoundary>
+        <BookSearchWidget />
+      </ErrorBoundary>
     </div>
   );
 }

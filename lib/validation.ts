@@ -4,7 +4,7 @@
  * BE/API: 타입 가드 및 스키마 검증
  */
 
-import { NotionConfig, Result } from './types';
+import { NotionConfig, Result, BookItem } from './types';
 
 // Notion 설정 검증
 export function validateNotionConfig(data: unknown): Result<NotionConfig> {
@@ -22,38 +22,34 @@ export function validateNotionConfig(data: unknown): Result<NotionConfig> {
     return { success: false, error: new Error('API key is required') };
   }
 
-  if (!isNonEmptyString(config.dateProperty)) {
-    return { success: false, error: new Error('Date property is required') };
-  }
-
-  if (!isNonEmptyString(config.titleProperty)) {
-    return { success: false, error: new Error('Title property is required') };
-  }
-
-
   return {
     success: true,
     data: {
       databaseId: sanitizeString(config.databaseId as string),
-      apiKey: config.apiKey as string, // API key는 sanitize하지 않음
-      dateProperty: sanitizeString(config.dateProperty as string),
-      titleProperty: sanitizeString(config.titleProperty as string),
+      apiKey: config.apiKey as string,
+      titleProperty: config.titleProperty ? sanitizeString(config.titleProperty as string) : undefined,
+      authorProperty: config.authorProperty ? sanitizeString(config.authorProperty as string) : undefined,
+      coverProperty: config.coverProperty ? sanitizeString(config.coverProperty as string) : undefined,
+      statusProperty: config.statusProperty ? sanitizeString(config.statusProperty as string) : undefined,
     }
   };
 }
 
-// 날짜 형식 검증 (YYYY-MM-DD)
-export function validateDateFormat(date: string): boolean {
-  const regex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!regex.test(date)) return false;
-  
-  const d = new Date(date);
-  return d instanceof Date && !isNaN(d.getTime());
+// 도서 검색어 검증
+export function validateSearchQuery(query: string): boolean {
+  if (!query || typeof query !== 'string') return false;
+  const trimmed = query.trim();
+  return trimmed.length >= 1 && trimmed.length <= 100;
+}
+
+// ISBN 형식 검증
+export function validateISBN(isbn: string): boolean {
+  const cleaned = isbn.replace(/-/g, '');
+  return /^\d{13}$/.test(cleaned);
 }
 
 // Database ID 형식 검증
 export function validateDatabaseId(id: string): boolean {
-  // Notion database ID는 32자 hex string (하이픈 제거 시)
   const cleaned = id.replace(/-/g, '');
   return /^[a-f0-9]{32}$/i.test(cleaned);
 }
@@ -70,17 +66,22 @@ function isNonEmptyString(value: unknown): value is string {
 // XSS 방지를 위한 문자열 sanitize
 export function sanitizeString(input: string): string {
   return input
-    .replace(/[<>]/g, '') // HTML 태그 제거
-    .replace(/javascript:/gi, '') // JavaScript 프로토콜 제거
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
     .trim()
-    .slice(0, 500); // 최대 길이 제한
+    .slice(0, 500);
 }
 
-// HTML 이스케이프
+// HTML 이스케이프 (서버 사이드 호환)
 export function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  const htmlEntities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEntities[char] || char);
 }
 
 // URL 검증
@@ -93,4 +94,36 @@ export function validateUrl(url: string): boolean {
   }
 }
 
+// 도서 데이터 검증
+export function validateBookItem(data: unknown): Result<BookItem> {
+  if (!isObject(data)) {
+    return { success: false, error: new Error('Invalid book format') };
+  }
 
+  const book = data as Record<string, unknown>;
+
+  if (typeof book.id !== 'number') {
+    return { success: false, error: new Error('Book ID is required') };
+  }
+
+  if (!isNonEmptyString(book.title)) {
+    return { success: false, error: new Error('Book title is required') };
+  }
+
+  return {
+    success: true,
+    data: {
+      id: book.id as number,
+      title: sanitizeString(book.title as string),
+      author: book.author ? sanitizeString(book.author as string) : '',
+      cover: book.cover ? String(book.cover) : '',
+      color: book.color ? String(book.color) : '#CDE4F5',
+      publisher: book.publisher ? sanitizeString(book.publisher as string) : undefined,
+      pubDate: book.pubDate ? String(book.pubDate) : undefined,
+      description: book.description ? sanitizeString(book.description as string) : undefined,
+      isbn13: book.isbn13 ? String(book.isbn13) : undefined,
+      price: typeof book.price === 'number' ? book.price : undefined,
+      link: book.link ? String(book.link) : undefined,
+    }
+  };
+}

@@ -1,12 +1,11 @@
 /**
  * Notion 서비스 통합
  * BE/API: Notion API 연동 및 데이터 처리
- * 성능: 캐싱 및 최적화
+ * 독서 기록 저장을 위한 Notion 연동
  */
 
 import { Client } from '@notionhq/client';
-import { NotionConfig, Result } from './types';
-import { validateDateFormat } from './validation';
+import { NotionConfig, BookItem, Result } from './types';
 
 export class NotionService {
   private client: Client;
@@ -17,75 +16,6 @@ export class NotionService {
       auth: config.apiKey,
     });
     this.config = config;
-  }
-
-  // 투두리스트용 데이터베이스 스키마 자동 분석
-  static async autoDetectTodoProperties(apiKey: string, databaseId: string): Promise<{
-    success: true;
-    data: {
-      dateProperty: string;
-      titleProperty: string;
-    };
-  } | {
-    success: false;
-    error: Error;
-  }> {
-    try {
-      const client = new Client({ auth: apiKey });
-
-      // 데이터베이스 정보 가져오기
-      const database = await client.databases.retrieve({ database_id: databaseId });
-
-      const properties = database.properties;
-      const propertyNames = Object.keys(properties);
-
-      // 날짜 속성 찾기 (Date 타입)
-      let dateProperty = '';
-      for (const [name, prop] of Object.entries(properties)) {
-        if (prop.type === 'date') {
-          dateProperty = name;
-          break;
-        }
-      }
-
-      // 제목 속성 찾기 (Title 타입)
-      let titleProperty = '';
-      for (const [name, prop] of Object.entries(properties)) {
-        if (prop.type === 'title') {
-          titleProperty = name;
-          break;
-        }
-      }
-
-      // 필수 속성이 없으면 에러
-      if (!dateProperty) {
-        return {
-          success: false,
-          error: new Error('날짜 속성을 찾을 수 없습니다. 데이터베이스에 Date 타입의 속성을 추가해주세요.'),
-        };
-      }
-
-      if (!titleProperty) {
-        return {
-          success: false,
-          error: new Error('제목 속성을 찾을 수 없습니다. 데이터베이스에 Title 타입의 속성을 추가해주세요.'),
-        };
-      }
-
-      return {
-        success: true,
-        data: {
-          dateProperty,
-          titleProperty,
-        },
-      };
-    } catch (error) {
-      console.error('Failed to analyze todo database:', error);
-      return {
-        success: false,
-        error: new Error(`Failed to analyze database: ${error}`),
-      };
-    }
   }
 
   // 데이터베이스 목록 가져오기
@@ -121,14 +51,14 @@ export class NotionService {
     }
   }
 
-  // 데이터베이스 스키마 분석
-  static async analyzeDatabase(apiKey: string, databaseId: string): Promise<{
+  // 독서 기록용 데이터베이스 스키마 자동 분석
+  static async analyzeBookDatabase(apiKey: string, databaseId: string): Promise<{
     success: true;
     data: {
-      dateProperty: string;
       titleProperty: string;
-      scheduleProperties: string[];
-      importantProperty: string;
+      authorProperty: string;
+      coverProperty: string;
+      statusProperty: string;
     };
   } | {
     success: false;
@@ -141,16 +71,6 @@ export class NotionService {
       const database = await client.databases.retrieve({ database_id: databaseId });
 
       const properties = database.properties;
-      const propertyNames = Object.keys(properties);
-
-      // 날짜 속성 찾기 (Date 타입)
-      let dateProperty = '';
-      for (const [name, prop] of Object.entries(properties)) {
-        if (prop.type === 'date') {
-          dateProperty = name;
-          break;
-        }
-      }
 
       // 제목 속성 찾기 (Title 타입)
       let titleProperty = '';
@@ -161,29 +81,34 @@ export class NotionService {
         }
       }
 
-      // 일정 속성들 찾기 (Rich Text 타입)
-      const scheduleProperties: string[] = [];
+      // 저자 속성 찾기 (Rich Text 타입, '저자' 또는 'author' 포함)
+      let authorProperty = '';
       for (const [name, prop] of Object.entries(properties)) {
-        if (prop.type === 'rich_text' && name.toLowerCase().includes('일정')) {
-          scheduleProperties.push(name);
-        }
-      }
-
-      // 중요 속성 찾기 (Select 타입)
-      let importantProperty = '';
-      for (const [name, prop] of Object.entries(properties)) {
-        if (prop.type === 'select' && name.toLowerCase().includes('중요')) {
-          importantProperty = name;
+        if (prop.type === 'rich_text' && 
+            (name.toLowerCase().includes('저자') || name.toLowerCase().includes('author'))) {
+          authorProperty = name;
           break;
         }
       }
 
-      // 필수 속성이 없으면 에러
-      if (!dateProperty) {
-        return {
-          success: false,
-          error: new Error('날짜 속성을 찾을 수 없습니다. 데이터베이스에 Date 타입의 속성을 추가해주세요.'),
-        };
+      // 표지 속성 찾기 (Files 또는 URL 타입)
+      let coverProperty = '';
+      for (const [name, prop] of Object.entries(properties)) {
+        if ((prop.type === 'files' || prop.type === 'url') && 
+            (name.toLowerCase().includes('표지') || name.toLowerCase().includes('cover'))) {
+          coverProperty = name;
+          break;
+        }
+      }
+
+      // 상태 속성 찾기 (Select 타입)
+      let statusProperty = '';
+      for (const [name, prop] of Object.entries(properties)) {
+        if (prop.type === 'select' && 
+            (name.toLowerCase().includes('상태') || name.toLowerCase().includes('status'))) {
+          statusProperty = name;
+          break;
+        }
       }
 
       if (!titleProperty) {
@@ -196,17 +121,68 @@ export class NotionService {
       return {
         success: true,
         data: {
-          dateProperty,
           titleProperty,
-          scheduleProperties,
-          importantProperty,
+          authorProperty,
+          coverProperty,
+          statusProperty,
         },
       };
     } catch (error) {
-      console.error('Failed to analyze database:', error);
+      console.error('Failed to analyze book database:', error);
       return {
         success: false,
         error: new Error(`Failed to analyze database: ${error}`),
+      };
+    }
+  }
+
+  // 도서를 Notion 데이터베이스에 추가
+  async addBook(book: BookItem): Promise<Result<{ pageId: string }>> {
+    try {
+      const properties: any = {};
+
+      // 제목 설정
+      if (this.config.titleProperty) {
+        properties[this.config.titleProperty] = {
+          title: [{ text: { content: book.title } }],
+        };
+      }
+
+      // 저자 설정
+      if (this.config.authorProperty) {
+        properties[this.config.authorProperty] = {
+          rich_text: [{ text: { content: book.author } }],
+        };
+      }
+
+      // 표지 URL 설정
+      if (this.config.coverProperty && book.cover) {
+        properties[this.config.coverProperty] = {
+          url: book.cover,
+        };
+      }
+
+      // 상태 설정 (기본값: 읽고 싶은 책)
+      if (this.config.statusProperty) {
+        properties[this.config.statusProperty] = {
+          select: { name: '읽고 싶은 책' },
+        };
+      }
+
+      const page = await this.client.pages.create({
+        parent: { database_id: this.config.databaseId },
+        properties,
+      });
+
+      return {
+        success: true,
+        data: { pageId: page.id },
+      };
+    } catch (error) {
+      console.error('Failed to add book:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error : new Error(String(error)),
       };
     }
   }

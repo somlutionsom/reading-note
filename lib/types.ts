@@ -8,30 +8,38 @@
 export interface NotionConfig {
   databaseId: string;
   apiKey: string;
-  dateProperty: string;
-  titleProperty: string;
+  titleProperty?: string;
+  authorProperty?: string;
+  coverProperty?: string;
+  statusProperty?: string;
 }
 
+// 도서 아이템 타입
+export interface BookItem {
+  id: number;
+  title: string;
+  author: string;
+  cover: string;
+  color: string;
+  publisher?: string;
+  pubDate?: string;
+  description?: string;
+  isbn13?: string;
+  price?: number;
+  link?: string;
+}
 
-// 투두리스트 아이템 타입
-export interface TodoItem {
+// 독서 기록 타입
+export interface ReadingRecord {
   id: string;
-  text: string;
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  category?: string;
-  isImportant?: boolean;
+  book: BookItem;
+  status: 'reading' | 'completed' | 'want-to-read';
+  startDate?: string;
+  endDate?: string;
+  rating?: number;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
-}
-
-// 투두리스트 페이지 타입
-export interface TodoPage {
-  id: string;
-  date: string; // YYYY-MM-DD
-  title: string;
-  todos: TodoItem[];
-  pageUrl: string;
 }
 
 // API 응답 타입
@@ -43,12 +51,13 @@ export interface ApiResponse<T> {
     message: string;
     details?: unknown;
   };
+  totalResults?: number;
 }
 
 // 위젯 설정 타입
 export interface WidgetConfig {
   id: string;
-  notionConfig: NotionConfig;
+  notionConfig?: NotionConfig;
   theme?: ThemeConfig;
   createdAt: string;
   updatedAt: string;
@@ -58,14 +67,11 @@ export interface WidgetConfig {
 export interface ThemeConfig {
   primaryColor?: string;
   accentColor?: string;
-  importantColor?: string;
   backgroundColor?: string;
   backgroundOpacity?: number;
   fontColor?: string;
   fontFamily?: string;
-  checkboxStyle?: 'circle' | 'heart'; // 체크박스 스타일 선택
 }
-
 
 // Result 타입 (에러 핸들링용)
 export type Result<T, E = Error> = 
@@ -74,9 +80,7 @@ export type Result<T, E = Error> =
 
 // 환경 설정 타입
 export interface EnvConfig {
-  NOTION_API_VERSION: string;
-  ENCRYPTION_KEY: string;
+  ALADIN_TTB_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
   VERCEL_URL?: string;
 }
-
