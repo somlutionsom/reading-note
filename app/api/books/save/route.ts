@@ -43,9 +43,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 저자 설정 (Rich Text 타입)
+    // "(지은이)", "(옮긴이)", "(글)" 등 역할 표기 제거
     if (authorProperty && book.author) {
+      const cleanAuthor = book.author
+        .replace(/\s*\([^)]*이\)/g, '') // (지은이), (옮긴이), (글쓴이) 등 제거
+        .replace(/\s*\(글\)/g, '')       // (글) 제거
+        .replace(/\s*\(그림\)/g, '')     // (그림) 제거
+        .trim();
+      
       properties[authorProperty] = {
-        rich_text: [{ text: { content: book.author } }],
+        rich_text: [{ text: { content: cleanAuthor } }],
       };
     }
 
@@ -82,17 +89,10 @@ export async function POST(request: NextRequest) {
     console.log('📚 노션에 도서 저장 중:', book.title);
     console.log('📋 속성:', JSON.stringify(properties, null, 2));
 
-    // 페이지 생성
+    // 페이지 생성 (cover 속성에만 이미지 저장, 페이지 커버에는 저장 안 함)
     const page = await notion.pages.create({
       parent: { database_id: databaseId },
       properties,
-      // 표지 이미지를 페이지 커버로도 설정
-      ...(book.cover && {
-        cover: {
-          type: 'external',
-          external: { url: book.cover },
-        },
-      }),
     });
 
     console.log('✅ 도서 저장 완료:', page.id);
