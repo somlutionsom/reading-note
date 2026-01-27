@@ -91,18 +91,8 @@ export default function BookWidgetPage({ params }: PageProps) {
   }
 
   return (
-    <div style={{
-      width: '100%',
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'center',
-      padding: '0.5rem',
-      background: 'transparent',
-    }}>
-      <ErrorBoundary>
-        <BookSearchWidget config={config} />
-      </ErrorBoundary>
-    </div>
+    <ErrorBoundary>
+      <BookSearchWidget config={config} />
+    </ErrorBoundary>
   );
 }
