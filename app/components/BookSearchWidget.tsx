@@ -186,6 +186,10 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           font-family: ${getFontFamily(theme.fontFamily)};
         }
 
+        .book-widget-body * {
+          font-family: inherit;
+        }
+
         .window {
           background: ${bgStyle};
           border: 1px solid ${theme.primaryColor}40;
@@ -289,7 +293,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           display: flex;
           gap: 6px;
           align-items: center;
-          background: ${theme.backgroundColor};
+          background: ${bgStyle};
         }
 
         .back-btn {
@@ -311,7 +315,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         .search-input {
           flex: 1;
           border: 1px solid ${theme.primaryColor}25;
-          background: ${theme.backgroundColor};
+          background: transparent;
           padding: 4px 8px;
           font-family: inherit;
           font-size: 11px;
@@ -333,7 +337,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           flex: 1;
           padding: 2px;
           overflow-y: auto;
-          background: ${theme.backgroundColor};
+          background: ${bgStyle};
         }
 
         .book-item {
