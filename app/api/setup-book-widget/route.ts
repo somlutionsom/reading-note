@@ -58,9 +58,13 @@ export async function POST(request: NextRequest) {
       .replace(/\//g, '_')
       .replace(/=/g, '');
 
+    // Vercel 배포 시 VERCEL_URL 사용, 없으면 요청 호스트 사용
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
                     `${request.nextUrl.protocol}//${request.nextUrl.host}`;
     const embedUrl = `${baseUrl}/todo-widget/${encodedConfig}`;
+    
+    console.log('🔗 생성된 위젯 URL baseUrl:', baseUrl);
 
     return NextResponse.json<ApiResponse<any>>({
       success: true,

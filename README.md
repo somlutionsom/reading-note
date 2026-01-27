@@ -4,7 +4,7 @@
 
 ## 저장소 정보
 - **GitHub URL**: https://github.com/somlutionsom/reading-note.git
-- **배포 URL**: (배포 후 업데이트 예정)
+- **배포 URL**: https://somy2kreadingnote.vercel.app/
 - **프로젝트 유형**: 웹앱 (Next.js 기반)
 
 ## 주요 기능
@@ -119,7 +119,7 @@ reading-note/
 
 ```html
 <iframe 
-  src="https://your-domain.com/todo-widget/CONFIG" 
+  src="https://somy2kreadingnote.vercel.app/todo-widget/CONFIG" 
   width="220" 
   height="200" 
   frameborder="0"
