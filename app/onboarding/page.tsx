@@ -10,7 +10,6 @@ import {
   Monitor, 
   Settings2,
   Palette,
-  Type,
   Book,
   Copy,
   Search,
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react';
 
 // --- [내부 컴포넌트] 생성될 위젯 미리보기용 ---
-const PreviewWidget = ({ theme, fontFamily }: { theme: any, fontFamily: string }) => {
+const PreviewWidget = ({ theme }: { theme: any }) => {
   const [view, setView] = useState<'main' | 'search'>('main');
   
   const hexToRgba = (hex: string, alpha: number) => {
@@ -33,15 +32,6 @@ const PreviewWidget = ({ theme, fontFamily }: { theme: any, fontFamily: string }
     ? hexToRgba(theme.backgroundColor, theme.backgroundOpacity) 
     : theme.backgroundColor;
 
-  const getFontFamily = (font: string) => {
-    switch(font) {
-      case 'Galmuri11': return "'Galmuri11', monospace";
-      case 'Pretendard': return "'Pretendard', sans-serif";
-      case 'Corbel': return "'Corbel', 'Malgun Gothic', sans-serif";
-      default: return "'Corbel', 'Malgun Gothic', sans-serif";
-    }
-  };
-
   const timeString = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const dateString = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
@@ -52,7 +42,7 @@ const PreviewWidget = ({ theme, fontFamily }: { theme: any, fontFamily: string }
 
   return (
     <div style={{
-      fontFamily: getFontFamily(fontFamily),
+      fontFamily: "'Corbel', 'Malgun Gothic', sans-serif",
       background: bgStyle,
       border: `1px solid ${theme.primaryColor}`,
       boxShadow: `0 4px 12px ${hexToRgba(theme.primaryColor, 10)}`,
@@ -950,23 +940,6 @@ export default function BookOnboardingPage() {
                     </div>
                   </div>
 
-                  {/* 폰트 설정 */}
-                  <div style={{ marginBottom: '32px' }}>
-                    <div className="section-title"><Type size={18} /> 폰트 선택</div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <select 
-                            className="soft-input" 
-                            style={{ padding: '12px', cursor: 'pointer' }}
-                            value={formData.fontFamily}
-                            onChange={(e) => handleInputChange('fontFamily', e.target.value)}
-                        >
-                            <option value="Corbel">Corbel (Simple)</option>
-                            <option value="Galmuri11">갈무리11 (Pixel)</option>
-                            <option value="Pretendard">프리텐다드 (Modern)</option>
-                        </select>
-                    </div>
-                  </div>
-
                   {/* 세부 커스터마이징 */}
                   <div style={{ marginBottom: '32px', background: '#F9F9F9', padding: '20px', borderRadius: '16px' }}>
                     <div className="section-title" style={{ fontSize: '14px' }}>✨ 세부 색상 & 투명도</div>
@@ -1088,7 +1061,6 @@ export default function BookOnboardingPage() {
                       fontColor: formData.fontColor,
                       backgroundOpacity: formData.backgroundOpacity
                     }}
-                    fontFamily={formData.fontFamily}
                   />
 
                   <div style={{ marginTop: '40px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
