@@ -644,6 +644,64 @@ export default function BookOnboardingPage() {
             margin-bottom: 8px;
         }
 
+        .color-option-wrapper {
+            position: relative;
+        }
+
+        .tooltip-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            background: #e8e8e8;
+            border-radius: 50%;
+            font-size: 9px;
+            font-weight: 600;
+            color: #888;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-trigger:hover {
+            background: #6C9AC4;
+            color: white;
+        }
+
+        .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            font-size: 11px;
+            font-weight: 400;
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            z-index: 1000;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .tooltip-trigger:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
         .color-input-circle {
             width: 32px;
             height: 32px;
@@ -914,8 +972,13 @@ export default function BookOnboardingPage() {
                     <div className="section-title" style={{ fontSize: '14px' }}>✨ 세부 색상 & 투명도</div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-                        <div>
-                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>기본 색상</div>
+                        <div className="color-option-wrapper">
+                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                테마 색상
+                                <span className="tooltip-trigger">?
+                                    <span className="tooltip-content">위젯 테두리, 헤더, 시계, 저자 이름에 적용됩니다</span>
+                                </span>
+                            </div>
                             <div className="color-picker-wrapper">
                                 <span style={{ fontSize: '13px', color: '#555' }}>{formData.primaryColor}</span>
                                 <input 
@@ -929,8 +992,13 @@ export default function BookOnboardingPage() {
                                 />
                             </div>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>강조 색상</div>
+                        <div className="color-option-wrapper">
+                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                버튼 색상
+                                <span className="tooltip-trigger">?
+                                    <span className="tooltip-content">검색 버튼, SAVED 표시에 적용됩니다</span>
+                                </span>
+                            </div>
                             <div className="color-picker-wrapper">
                                 <span style={{ fontSize: '13px', color: '#555' }}>{formData.accentColor}</span>
                                 <input 
@@ -944,8 +1012,13 @@ export default function BookOnboardingPage() {
                                 />
                             </div>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>배경 색상</div>
+                        <div className="color-option-wrapper">
+                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                위젯 배경
+                                <span className="tooltip-trigger">?
+                                    <span className="tooltip-content">위젯 전체 배경 색상에 적용됩니다</span>
+                                </span>
+                            </div>
                             <div className="color-picker-wrapper">
                                 <span style={{ fontSize: '13px', color: '#555' }}>{formData.backgroundColor}</span>
                                 <input 
@@ -961,8 +1034,13 @@ export default function BookOnboardingPage() {
                                 />
                             </div>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>폰트 색상</div>
+                        <div className="color-option-wrapper">
+                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                제목 색상
+                                <span className="tooltip-trigger">?
+                                    <span className="tooltip-content">검색 결과의 책 제목 색상에 적용됩니다</span>
+                                </span>
+                            </div>
                             <div className="color-picker-wrapper">
                                 <span style={{ fontSize: '13px', color: '#555' }}>{formData.fontColor}</span>
                                 <input 
@@ -1003,7 +1081,6 @@ export default function BookOnboardingPage() {
                   </div>
                   
                   <PreviewWidget 
-                    key={JSON.stringify({ ...formData, step })}
                     theme={{
                       primaryColor: formData.primaryColor,
                       accentColor: formData.accentColor,
