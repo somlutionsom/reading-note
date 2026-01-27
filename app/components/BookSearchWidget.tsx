@@ -183,6 +183,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           background: transparent;
           margin: 0;
           padding: 4px;
+          padding-top: 7px;
           font-family: ${getFontFamily(theme.fontFamily)};
         }
 
@@ -211,7 +212,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           align-items: center;
           justify-content: space-between;
           padding: 0 10px;
-          font-size: 11px;
+          font-size: 9px;
           color: ${theme.primaryColor};
           font-weight: 600;
           flex-shrink: 0;
@@ -244,7 +245,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         .clock-time {
           font-size: 34px;
           color: ${theme.primaryColor};
-          font-weight: 300;
+          font-weight: 600;
           letter-spacing: -1px;
           margin-bottom: 2px;
           line-height: 1;
