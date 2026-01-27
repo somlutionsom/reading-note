@@ -443,7 +443,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           <div className="win-header">
             <span className="win-header-title">
               {view === 'main' ? <Clock size={11} strokeWidth={2} /> : <Book size={11} strokeWidth={2} />}
-              {view === 'main' ? 'Today' : 'Lib'}
+              {view === 'main' ? 'SOMLUTION' : 'Lib'}
             </span>
             <div style={{ display: "flex" }}>
               <div className="win-btn"></div>

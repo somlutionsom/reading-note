@@ -71,7 +71,7 @@ const PreviewWidget = ({ theme }: { theme: any }) => {
       }}>
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
           {view === 'main' ? <Clock size={11} strokeWidth={2} /> : <Book size={11} strokeWidth={2} />}
-          {view === 'main' ? 'Today' : 'Lib'}
+          {view === 'main' ? 'SOMLUTION' : 'Lib'}
         </div>
         <div style={{ display: 'flex', gap: '5px' }}>
           <div style={{ width: '7px', height: '7px', background: `${theme.primaryColor}40`, borderRadius: '50%' }}></div>
@@ -814,7 +814,7 @@ export default function BookOnboardingPage() {
         <div className="title-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'Pretendard, sans-serif' }}>
             <Monitor size={18} strokeWidth={2.5} />
-            <span>READING NOTE</span>
+            <span>READING FLOW</span>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#eee' }}></div>
