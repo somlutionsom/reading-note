@@ -52,7 +52,7 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        // 투두리스트 위젯 iframe 임베드 허용
+        // 도서 검색 위젯 iframe 임베드 허용
         source: '/todo-widget/:path*',
         headers: [
           {

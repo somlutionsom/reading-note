@@ -1,7 +1,7 @@
 {
-  "name": "simple-calendar-widget",
+  "name": "reading-flow-widget",
   "version": "1.0.0",
-  "description": "Notion DB와 연동된 심플 캘린더 위젯",
+  "description": "Notion DB와 연동된 리딩플로우 도서 검색 위젯",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -39,8 +39,10 @@
   "license": "MIT",
   "keywords": [
     "notion",
-    "calendar",
+    "book",
+    "reading",
     "widget",
+    "aladin",
     "nextjs",
     "react",
     "typescript"
