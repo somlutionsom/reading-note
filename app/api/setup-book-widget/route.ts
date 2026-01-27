@@ -58,10 +58,9 @@ export async function POST(request: NextRequest) {
       .replace(/\//g, '_')
       .replace(/=/g, '');
 
-    // Vercel 배포 시 VERCEL_URL 사용, 없으면 요청 호스트 사용
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-                    `${request.nextUrl.protocol}//${request.nextUrl.host}`;
+    // 프로덕션 URL 고정 사용 (프리뷰 배포 URL은 비공개라 로그인 필요)
+    const PRODUCTION_URL = 'https://somy2kreadingnote.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || PRODUCTION_URL;
     const embedUrl = `${baseUrl}/todo-widget/${encodedConfig}`;
     
     console.log('🔗 생성된 위젯 URL baseUrl:', baseUrl);
