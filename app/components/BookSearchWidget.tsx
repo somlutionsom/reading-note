@@ -182,7 +182,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         .book-widget-body {
           background: transparent;
           margin: 0;
-          padding: 4px;
+          padding: 4px 5px 4px 7px;
           padding-top: 7px;
           font-family: ${getFontFamily(theme.fontFamily)};
         }
