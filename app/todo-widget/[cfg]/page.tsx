@@ -37,16 +37,20 @@ export default function BookWidgetPage({ params }: PageProps) {
       console.log('🔧 디코딩된 원본 데이터:', decodedData);
 
       const parsedConfig = {
-        // 노션 연동 설정 (선택적)
+        // 노션 연동 설정
         token: decodedData.token,
         databaseId: decodedData.dbId,
+        titleProperty: decodedData.titleProp,
+        authorProperty: decodedData.authorProp,
+        coverProperty: decodedData.coverProp,
+        statusProperty: decodedData.statusProp,
         // 테마 설정
         theme: {
-          primaryColor: decodedData.primaryColor,
-          accentColor: decodedData.accentColor,
-          backgroundColor: decodedData.backgroundColor,
-          backgroundOpacity: decodedData.backgroundOpacity,
-          fontColor: decodedData.fontColor,
+          primaryColor: decodedData.primaryColor || '#6C9AC4',
+          accentColor: decodedData.accentColor || '#B4D4EC',
+          backgroundColor: decodedData.backgroundColor || '#FFFFFF',
+          backgroundOpacity: decodedData.backgroundOpacity || 95,
+          fontColor: decodedData.fontColor || '#555555',
           fontFamily: decodedData.fontFamily || 'Corbel',
         },
       };
@@ -96,7 +100,7 @@ export default function BookWidgetPage({ params }: PageProps) {
       background: 'transparent',
     }}>
       <ErrorBoundary>
-        <BookSearchWidget />
+        <BookSearchWidget config={config} />
       </ErrorBoundary>
     </div>
   );
