@@ -1,0 +1,347 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* Y2K 파스텔 핑크 테마 색상 */
+  --y2k-pink: #E8A8C0;
+  --y2k-pink-light: #FFF0F5;
+  --y2k-pink-hover: #FFDBEB;
+  --y2k-pink-bg: #FFF5F9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: auto;
+  margin: 0;
+  padding: 0;
+  font-family: 'Galmuri11', monospace;
+}
+
+/* Y2K 투두리스트 위젯 스타일 */
+.y2k-widget {
+  font-family: 'Galmuri11', monospace;
+  background: white;
+  border: 1px solid var(--y2k-pink);
+  outline: 2px solid var(--y2k-pink-light);
+  box-shadow: 2px 2px 0px rgba(232, 168, 192, 0.3), 4px 4px 12px rgba(232, 168, 192, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  user-select: none;
+  transition: transform 0.2s ease;
+  width: 214px; /* 너비 10px 증가 (204px -> 214px) */
+  letter-spacing: -0.5px;
+  position: relative; /* 우측 하단 새로고침 버튼 위치 지정을 위해 */
+}
+
+.y2k-widget:hover {
+  transform: translateY(-2px);
+}
+
+.y2k-header {
+  height: 24px;
+  background: var(--y2k-pink-light);
+  border-bottom: 1px solid var(--y2k-pink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  font-size: 11px;
+  color: var(--y2k-pink);
+  letter-spacing: -0.5px;
+}
+
+.y2k-header-title {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.y2k-btn {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--y2k-pink);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 0.2s;
+}
+
+.y2k-btn:hover {
+  background: var(--y2k-pink);
+  color: white;
+  transform: scale(1.1);
+}
+
+.y2k-input-area {
+  padding: 8px;
+  border-bottom: 1px dotted var(--y2k-pink-hover);
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  gap: 4px;
+}
+
+.y2k-input {
+  flex: 1;
+  max-width: 154px; /* 입력 필드 최대 너비 10% 증가 (140px -> 154px) */
+  border: 1px solid #e8e8e8;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-family: inherit;
+  border-radius: 3px;
+  transition: all 0.2s;
+  letter-spacing: -0.5px;
+  box-sizing: border-box;
+}
+
+.y2k-input:focus {
+  outline: 1px solid var(--y2k-pink);
+  box-shadow: 0 0 0 3px rgba(232, 168, 192, 0.1);
+}
+
+.y2k-add-btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px; /* 최소 너비 보장 */
+  min-height: 20px; /* 최소 높이 보장 */
+  flex-shrink: 0; /* 버튼이 찌그러지지 않도록 */
+  margin-left: 5px; /* 우측으로 5px 이동 */
+  border: 1px solid var(--y2k-pink);
+  background: var(--y2k-pink-light);
+  color: var(--y2k-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.y2k-add-btn:hover {
+  background: var(--y2k-pink);
+  color: white;
+  transform: scale(1.1);
+}
+
+.y2k-todo-list {
+  padding: 8px 8px 4px 8px; /* 하단 패딩 줄임 (8px -> 4px) */
+  overflow-y: auto;
+}
+
+.y2k-todo-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid #e8e8e8;
+  margin-bottom: 4px;
+  background: white;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.y2k-todo-item.important {
+  border-color: var(--y2k-pink);
+  background: var(--y2k-pink-bg);
+}
+
+.y2k-todo-item:hover {
+  background: var(--y2k-pink-light);
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(232, 168, 192, 0.1);
+}
+
+.y2k-heart-btn {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: #ddd;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.y2k-heart-btn:hover {
+  transform: scale(1.2);
+  color: var(--y2k-pink);
+}
+
+.y2k-heart-btn.active {
+  color: var(--y2k-pink);
+}
+
+.y2k-checkbox {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--y2k-pink);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.2s;
+  font-size: 9px;
+  color: white;
+}
+
+.y2k-checkbox:hover {
+  transform: scale(1.15);
+}
+
+.y2k-checkbox.checked {
+  background: var(--y2k-pink);
+}
+
+.y2k-todo-text {
+  flex: 1;
+  font-size: 10px;
+  color: #666;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.y2k-todo-text.important {
+  color: var(--y2k-pink);
+  font-weight: bold;
+}
+
+.y2k-todo-text.completed {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.y2k-delete-btn {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #ccc;
+  background: white;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 8px;
+  border-radius: 3px;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.y2k-delete-btn:hover {
+  background: var(--y2k-pink);
+  color: white;
+  border-color: var(--y2k-pink);
+  transform: scale(1.15);
+}
+
+.y2k-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #ccc;
+  font-size: 11px;
+  letter-spacing: -0.5px;
+}
+
+/* 우측 하단 새로고침 버튼 */
+.y2k-refresh-bottom {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #d0d0d0; /* 옅은 회색 */
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.y2k-refresh-bottom:hover {
+  opacity: 1;
+  color: #999;
+  transform: scale(1.1);
+}
+
+.y2k-refresh-bottom:active {
+  transform: scale(0.95);
+}
+
+/* Y2K 스크롤바 스타일 */
+.y2k-todo-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.y2k-todo-list::-webkit-scrollbar-track {
+  background: var(--y2k-pink-light);
+}
+
+.y2k-todo-list::-webkit-scrollbar-thumb {
+  background: var(--y2k-pink);
+  border-radius: 4px;
+}
+
+/* 새로고침 버튼 */
+.y2k-refresh-btn {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--y2k-pink);
+  background: none;
+  border: none;
+  padding: 0;
+  opacity: 0.6;
+  transition: all 0.2s;
+}
+
+.y2k-refresh-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.y2k-refresh-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
