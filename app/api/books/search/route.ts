@@ -77,10 +77,6 @@ function formatDate(datetime: string): string {
 
 /**
  * 카카오 썸네일 URL에서 원본 다음 이미지 URL 추출
- * Notion에서 이미지 미리보기가 표시되도록 .jpg 확장자 힌트 추가
- * 
- * 카카오 썸네일: https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F...
- * 변환 결과: https://t1.daumcdn.net/lbook/image/6253040#.jpg
  */
 function extractDaumImageUrl(thumbnailUrl: string): string {
   if (!thumbnailUrl) return '';
@@ -96,8 +92,6 @@ function extractDaumImageUrl(thumbnailUrl: string): string {
       imageUrl = imageUrl.replace(/^http:/, 'https:');
       // timestamp 파라미터 제거
       imageUrl = imageUrl.split('?')[0];
-      // Notion이 이미지로 인식하도록 .jpg 확장자 힌트 추가 (해시는 서버에 전달되지 않음)
-      imageUrl = imageUrl + '#.jpg';
       return imageUrl;
     }
     
@@ -105,6 +99,16 @@ function extractDaumImageUrl(thumbnailUrl: string): string {
   } catch {
     return thumbnailUrl;
   }
+}
+
+/**
+ * 이미지 프록시 URL 생성
+ * Notion에서 미리보기가 표시되도록 .jpg 확장자가 있는 프록시 URL 반환
+ */
+function createProxyImageUrl(imageUrl: string, baseUrl: string): string {
+  if (!imageUrl) return '';
+  const encodedUrl = encodeURIComponent(imageUrl);
+  return `${baseUrl}/api/image-proxy/cover.jpg?url=${encodedUrl}`;
 }
 
 export async function GET(request: NextRequest) {
@@ -158,20 +162,28 @@ export async function GET(request: NextRequest) {
 
     const data: KakaoBookResponse = await response.json();
 
+    // 베이스 URL 추출 (프록시 이미지 URL 생성용)
+    const requestUrl = new URL(request.url);
+    const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+
     // 결과 변환 (기존 알라딘 API 응답 형식과 동일하게 유지)
-    const books: BookResult[] = (data.documents || []).map((item: KakaoBook, index: number) => ({
-      id: extractIsbn13(item.isbn) || `kakao-${index}`,
-      title: item.title,
-      author: item.authors.join(', '),
-      cover: extractDaumImageUrl(item.thumbnail),
-      color: PASTEL_COLORS[index % PASTEL_COLORS.length],
-      publisher: item.publisher,
-      pubDate: formatDate(item.datetime),
-      description: item.contents,
-      isbn13: extractIsbn13(item.isbn),
-      price: item.price,
-      link: item.url,
-    }));
+    const books: BookResult[] = (data.documents || []).map((item: KakaoBook, index: number) => {
+      const originalImageUrl = extractDaumImageUrl(item.thumbnail);
+      return {
+        id: extractIsbn13(item.isbn) || `kakao-${index}`,
+        title: item.title,
+        author: item.authors.join(', '),
+        // 이미지 프록시 URL 사용 (.jpg 확장자로 Notion에서 미리보기 표시)
+        cover: createProxyImageUrl(originalImageUrl, baseUrl),
+        color: PASTEL_COLORS[index % PASTEL_COLORS.length],
+        publisher: item.publisher,
+        pubDate: formatDate(item.datetime),
+        description: item.contents,
+        isbn13: extractIsbn13(item.isbn),
+        price: item.price,
+        link: item.url,
+      };
+    });
 
     console.log(`✅ 검색 결과: ${books.length}권 발견`);
 
