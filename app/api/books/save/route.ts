@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('📚 노션에 도서 저장 중:', book.title);
+    console.log('🖼️ 커버 이미지 URL:', book.cover);
     console.log('📋 속성:', JSON.stringify(properties, null, 2));
 
     // 페이지 생성 (cover 속성에만 이미지 저장, 페이지 커버에는 저장 안 함)

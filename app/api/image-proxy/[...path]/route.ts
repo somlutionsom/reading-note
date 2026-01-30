@@ -1,14 +1,17 @@
 /**
- * 이미지 프록시 API
+ * 이미지 프록시 API (Edge Runtime)
  * 외부 이미지를 프록시하여 Notion에서 미리보기가 표시되도록 함
  * 
  * 사용법: /api/image-proxy/cover.jpg?url=https://t1.daumcdn.net/lbook/image/6253040
  * 
  * - URL 끝에 .jpg가 있어서 Notion이 이미지로 인식
- * - 서버에서 실제 이미지를 가져와서 반환
+ * - Edge Runtime으로 빠른 응답
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+// Edge Runtime 사용 (더 빠른 응답)
+export const runtime = 'edge';
 
 export async function GET(
   request: NextRequest,
@@ -49,12 +52,14 @@ export async function GET(
     const imageBuffer = await response.arrayBuffer();
     const contentType = response.headers.get('content-type') || 'image/jpeg';
 
-    // 이미지 반환 (캐시 설정)
+    // 이미지 반환 (Notion 호환 헤더 설정)
     return new NextResponse(imageBuffer, {
       headers: {
         'Content-Type': contentType,
+        'Content-Disposition': 'inline; filename="cover.jpg"',
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
+        'X-Content-Type-Options': 'nosniff',
       },
     });
 
