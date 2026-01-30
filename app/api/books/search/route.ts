@@ -1,25 +1,37 @@
 /**
- * 알라딘 도서 검색 API
- * 알라딘 Open API를 사용하여 도서를 검색합니다.
+ * 카카오 도서 검색 API
+ * 카카오 책 검색 API를 사용하여 도서를 검색합니다.
+ * https://developers.kakao.com/docs/latest/ko/daum-search/dev-guide#search-book
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
-interface AladinBook {
-  itemId: number;
+interface KakaoBook {
   title: string;
-  author: string;
-  cover: string;
+  contents: string;
+  url: string;
+  isbn: string;
+  datetime: string;
+  authors: string[];
   publisher: string;
-  pubDate: string;
-  description: string;
-  isbn13: string;
-  priceStandard: number;
-  link: string;
+  translators: string[];
+  price: number;
+  sale_price: number;
+  thumbnail: string;
+  status: string;
+}
+
+interface KakaoBookResponse {
+  meta: {
+    total_count: number;
+    pageable_count: number;
+    is_end: boolean;
+  };
+  documents: KakaoBook[];
 }
 
 interface BookResult {
-  id: number;
+  id: string;
   title: string;
   author: string;
   cover: string;
@@ -38,6 +50,31 @@ const PASTEL_COLORS = [
   "#E8F4FC", "#C5DFF8", "#D4E6F1", "#E1F0F5", "#CCE5FF"
 ];
 
+/**
+ * ISBN 문자열에서 ISBN13 추출
+ * 카카오 API는 "ISBN10 ISBN13" 형식으로 반환할 수 있음
+ */
+function extractIsbn13(isbn: string): string {
+  if (!isbn) return '';
+  const parts = isbn.split(' ');
+  // ISBN13은 13자리
+  const isbn13 = parts.find(part => part.length === 13);
+  return isbn13 || parts[0] || '';
+}
+
+/**
+ * ISO 8601 날짜를 YYYY-MM-DD 형식으로 변환
+ */
+function formatDate(datetime: string): string {
+  if (!datetime) return '';
+  try {
+    const date = new Date(datetime);
+    return date.toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -54,65 +91,54 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const ALADIN_TTB_KEY = process.env.ALADIN_TTB_KEY;
+    const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY;
 
-    if (!ALADIN_TTB_KEY) {
-      console.error('알라딘 API 키가 설정되지 않았습니다.');
+    if (!KAKAO_REST_API_KEY) {
+      console.error('카카오 REST API 키가 설정되지 않았습니다.');
       return NextResponse.json({
         success: false,
         error: {
           code: 'API_KEY_MISSING',
-          message: '알라딘 API 키가 설정되지 않았습니다.',
+          message: '카카오 REST API 키가 설정되지 않았습니다.',
         },
       }, { status: 500 });
     }
 
-    // 알라딘 API 호출
-    const aladinUrl = new URL('http://www.aladin.co.kr/ttb/api/ItemSearch.aspx');
-    aladinUrl.searchParams.set('ttbkey', ALADIN_TTB_KEY);
-    aladinUrl.searchParams.set('Query', query);
-    aladinUrl.searchParams.set('QueryType', 'Keyword');
-    aladinUrl.searchParams.set('MaxResults', maxResults);
-    aladinUrl.searchParams.set('start', '1');
-    aladinUrl.searchParams.set('SearchTarget', 'Book');
-    aladinUrl.searchParams.set('output', 'js');
-    aladinUrl.searchParams.set('Version', '20131101');
-    aladinUrl.searchParams.set('Cover', 'Big'); // 큰 표지 이미지
+    // 카카오 책 검색 API 호출
+    const kakaoUrl = new URL('https://dapi.kakao.com/v3/search/book');
+    kakaoUrl.searchParams.set('query', query);
+    kakaoUrl.searchParams.set('size', maxResults);
+    kakaoUrl.searchParams.set('sort', 'accuracy');
 
-    console.log('📚 알라딘 API 호출:', aladinUrl.toString().replace(ALADIN_TTB_KEY, '***'));
+    console.log('📚 카카오 책 검색 API 호출:', kakaoUrl.toString());
 
-    const response = await fetch(aladinUrl.toString());
+    const response = await fetch(kakaoUrl.toString(), {
+      headers: {
+        'Authorization': `KakaoAK ${KAKAO_REST_API_KEY}`,
+      },
+    });
     
     if (!response.ok) {
-      throw new Error(`알라딘 API 응답 오류: ${response.status}`);
+      const errorText = await response.text();
+      console.error('카카오 API 응답 오류:', response.status, errorText);
+      throw new Error(`카카오 API 응답 오류: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: KakaoBookResponse = await response.json();
 
-    if (data.errorCode) {
-      console.error('알라딘 API 오류:', data.errorMessage);
-      return NextResponse.json({
-        success: false,
-        error: {
-          code: 'ALADIN_API_ERROR',
-          message: data.errorMessage || '알라딘 API 오류가 발생했습니다.',
-        },
-      }, { status: 400 });
-    }
-
-    // 결과 변환
-    const books: BookResult[] = (data.item || []).map((item: AladinBook, index: number) => ({
-      id: item.itemId,
+    // 결과 변환 (기존 알라딘 API 응답 형식과 동일하게 유지)
+    const books: BookResult[] = (data.documents || []).map((item: KakaoBook, index: number) => ({
+      id: extractIsbn13(item.isbn) || `kakao-${index}`,
       title: item.title,
-      author: item.author,
-      cover: item.cover,
+      author: item.authors.join(', '),
+      cover: item.thumbnail,
       color: PASTEL_COLORS[index % PASTEL_COLORS.length],
       publisher: item.publisher,
-      pubDate: item.pubDate,
-      description: item.description,
-      isbn13: item.isbn13,
-      price: item.priceStandard,
-      link: item.link,
+      pubDate: formatDate(item.datetime),
+      description: item.contents,
+      isbn13: extractIsbn13(item.isbn),
+      price: item.price,
+      link: item.url,
     }));
 
     console.log(`✅ 검색 결과: ${books.length}권 발견`);
@@ -120,7 +146,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: books,
-      totalResults: data.totalResults || 0,
+      totalResults: data.meta?.total_count || 0,
     });
 
   } catch (error) {

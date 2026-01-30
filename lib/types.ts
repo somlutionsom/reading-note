@@ -80,7 +80,7 @@ export type Result<T, E = Error> =
 
 // 환경 설정 타입
 export interface EnvConfig {
-  ALADIN_TTB_KEY: string;
+  KAKAO_REST_API_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
   VERCEL_URL?: string;
 }
