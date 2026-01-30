@@ -77,10 +77,10 @@ function formatDate(datetime: string): string {
 
 /**
  * 카카오 썸네일 URL에서 원본 다음 이미지 URL 추출
- * 카카오 CDN 썸네일은 Notion에서 미리보기가 안 되므로, 원본 다음 이미지 URL 사용
+ * Notion에서 이미지 미리보기가 표시되도록 .jpg 확장자 힌트 추가
  * 
  * 카카오 썸네일: https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F...
- * 원본 이미지: https://t1.daumcdn.net/lbook/image/... (timestamp 제거, https 변환)
+ * 변환 결과: https://t1.daumcdn.net/lbook/image/6253040#.jpg
  */
 function extractDaumImageUrl(thumbnailUrl: string): string {
   if (!thumbnailUrl) return '';
@@ -94,8 +94,10 @@ function extractDaumImageUrl(thumbnailUrl: string): string {
       let imageUrl = decodeURIComponent(fname);
       // http -> https 변환
       imageUrl = imageUrl.replace(/^http:/, 'https:');
-      // timestamp 파라미터 제거 (Notion 호환성)
+      // timestamp 파라미터 제거
       imageUrl = imageUrl.split('?')[0];
+      // Notion이 이미지로 인식하도록 .jpg 확장자 힌트 추가 (해시는 서버에 전달되지 않음)
+      imageUrl = imageUrl + '#.jpg';
       return imageUrl;
     }
     
