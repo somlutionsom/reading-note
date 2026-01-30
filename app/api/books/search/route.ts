@@ -76,23 +76,29 @@ function formatDate(datetime: string): string {
 }
 
 /**
- * 카카오 썸네일 URL을 큰 사이즈로 변환
- * 원본: https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=...
- * 변환: https://search1.kakaocdn.net/thumb/R480x696.q85/?fname=...
+ * 카카오 썸네일 URL에서 원본 다음 이미지 URL 추출
+ * 카카오 CDN 썸네일은 Notion에서 미리보기가 안 되므로, 원본 다음 이미지 URL 사용
  * 
- * 카카오 CDN URL은 이미지 Content-Type을 반환하여 Notion에서 미리보기가 표시됨
+ * 카카오 썸네일: https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F...
+ * 원본 이미지: https://t1.daumcdn.net/lbook/image/... (timestamp 제거, https 변환)
  */
-function getLargeImageUrl(thumbnailUrl: string): string {
+function extractDaumImageUrl(thumbnailUrl: string): string {
   if (!thumbnailUrl) return '';
   
   try {
-    // 카카오 CDN 썸네일 URL인 경우 큰 사이즈로 변환
-    if (thumbnailUrl.includes('kakaocdn.net/thumb/')) {
-      // R120x174 -> R480x696 (약 4배 크기)
-      return thumbnailUrl.replace(/\/thumb\/R\d+x\d+/, '/thumb/R480x696');
+    const url = new URL(thumbnailUrl);
+    const fname = url.searchParams.get('fname');
+    
+    if (fname) {
+      // URL 디코딩
+      let imageUrl = decodeURIComponent(fname);
+      // http -> https 변환
+      imageUrl = imageUrl.replace(/^http:/, 'https:');
+      // timestamp 파라미터 제거 (Notion 호환성)
+      imageUrl = imageUrl.split('?')[0];
+      return imageUrl;
     }
     
-    // 카카오 CDN이 아닌 경우 원본 반환
     return thumbnailUrl;
   } catch {
     return thumbnailUrl;
@@ -155,7 +161,7 @@ export async function GET(request: NextRequest) {
       id: extractIsbn13(item.isbn) || `kakao-${index}`,
       title: item.title,
       author: item.authors.join(', '),
-      cover: getLargeImageUrl(item.thumbnail),
+      cover: extractDaumImageUrl(item.thumbnail),
       color: PASTEL_COLORS[index % PASTEL_COLORS.length],
       publisher: item.publisher,
       pubDate: formatDate(item.datetime),
