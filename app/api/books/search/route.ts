@@ -76,21 +76,26 @@ function formatDate(datetime: string): string {
 }
 
 /**
- * 카카오 썸네일 URL에서 원본 다음 이미지 URL 추출
+ * 카카오 썸네일 URL에서 적당한 크기의 이미지 URL 추출
+ * R120x174 (원본 썸네일) -> R200x290 (적당한 크기)
  */
-function extractDaumImageUrl(thumbnailUrl: string): string {
+function getOptimizedImageUrl(thumbnailUrl: string): string {
   if (!thumbnailUrl) return '';
   
   try {
+    // 카카오 CDN 썸네일 URL 사용 (적당한 크기로 조정)
+    // R120x174 -> R200x290 (더 빠른 로딩, 적당한 품질)
+    if (thumbnailUrl.includes('kakaocdn.net/thumb/')) {
+      return thumbnailUrl.replace(/\/thumb\/R\d+x\d+/, '/thumb/R200x290');
+    }
+    
+    // 원본 다음 이미지 URL 추출 (fallback)
     const url = new URL(thumbnailUrl);
     const fname = url.searchParams.get('fname');
     
     if (fname) {
-      // URL 디코딩
       let imageUrl = decodeURIComponent(fname);
-      // http -> https 변환
       imageUrl = imageUrl.replace(/^http:/, 'https:');
-      // timestamp 파라미터 제거
       imageUrl = imageUrl.split('?')[0];
       return imageUrl;
     }
@@ -168,7 +173,7 @@ export async function GET(request: NextRequest) {
 
     // 결과 변환 (기존 알라딘 API 응답 형식과 동일하게 유지)
     const books: BookResult[] = (data.documents || []).map((item: KakaoBook, index: number) => {
-      const originalImageUrl = extractDaumImageUrl(item.thumbnail);
+      const originalImageUrl = getOptimizedImageUrl(item.thumbnail);
       return {
         id: extractIsbn13(item.isbn) || `kakao-${index}`,
         title: item.title,
