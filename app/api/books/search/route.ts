@@ -76,26 +76,22 @@ function formatDate(datetime: string): string {
 }
 
 /**
- * 카카오 썸네일 URL에서 적당한 크기의 이미지 URL 추출
- * R120x174 (원본 썸네일) -> R200x290 (적당한 크기)
+ * 카카오 썸네일 URL에서 원본 다음 이미지 URL 추출
+ * (카카오 CDN 직접 접근은 403 에러 발생하므로 원본 다음 URL 사용)
  */
 function getOptimizedImageUrl(thumbnailUrl: string): string {
   if (!thumbnailUrl) return '';
   
   try {
-    // 카카오 CDN 썸네일 URL 사용 (적당한 크기로 조정)
-    // R120x174 -> R200x290 (더 빠른 로딩, 적당한 품질)
-    if (thumbnailUrl.includes('kakaocdn.net/thumb/')) {
-      return thumbnailUrl.replace(/\/thumb\/R\d+x\d+/, '/thumb/R200x290');
-    }
-    
-    // 원본 다음 이미지 URL 추출 (fallback)
     const url = new URL(thumbnailUrl);
     const fname = url.searchParams.get('fname');
     
     if (fname) {
+      // 원본 다음 이미지 URL 추출
       let imageUrl = decodeURIComponent(fname);
+      // http -> https 변환
       imageUrl = imageUrl.replace(/^http:/, 'https:');
+      // timestamp 파라미터 제거
       imageUrl = imageUrl.split('?')[0];
       return imageUrl;
     }
