@@ -26,14 +26,19 @@ export async function GET(
     }
 
     // 허용된 도메인 체크 (보안)
-    const allowedDomains = [
-      't1.daumcdn.net',
-      'search1.kakaocdn.net',
-      'image.aladin.co.kr',
+    // 카카오/다음/알라딘 이미지 CDN의 서브도메인을 포괄적으로 허용
+    const allowedHostSuffixes = [
+      'daumcdn.net',
+      'kakaocdn.net',
+      'aladin.co.kr',
     ];
 
     const urlObj = new URL(imageUrl);
-    if (!allowedDomains.some(domain => urlObj.hostname.includes(domain))) {
+    const hostname = urlObj.hostname.toLowerCase();
+    const isAllowed = allowedHostSuffixes.some(
+      suffix => hostname === suffix || hostname.endsWith(`.${suffix}`)
+    );
+    if (!isAllowed) {
       return new NextResponse('Domain not allowed', { status: 403 });
     }
 
