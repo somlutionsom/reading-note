@@ -116,12 +116,34 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
 
   // 노션에 도서 저장
   const saveToNotion = async (book: BookResult) => {
+    console.log('📚 BOOK_SAVE: START', {
+      title: book.title,
+      author: book.author,
+      cover: book.cover,
+    });
+
     if (!config?.token || !config?.databaseId) {
-      console.log('노션 설정이 없습니다.');
+      console.warn('📚 BOOK_SAVE: NO_CONFIG - 노션 설정이 없습니다.');
       return false;
     }
 
     try {
+      const requestBody = {
+        token: config.token ? '***설정됨***' : '없음',
+        databaseId: config.databaseId,
+        titleProperty: config.titleProperty,
+        authorProperty: config.authorProperty,
+        coverProperty: config.coverProperty,
+        coverPropertyType: config.coverPropertyType || 'files',
+        statusProperty: config.statusProperty,
+        book: {
+          title: book.title,
+          author: book.author,
+          cover: book.cover,
+        },
+      };
+      console.log('📚 BOOK_SAVE: REQUEST', requestBody);
+
       const response = await fetch('/api/books/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -142,21 +164,39 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
       });
 
       const data = await response.json();
+      
+      if (data.success) {
+        console.log('📚 BOOK_SAVE: SUCCESS', { pageId: data.data?.pageId });
+      } else {
+        console.error('📚 BOOK_SAVE: FAILED', { error: data.error });
+      }
+      
       return data.success;
     } catch (error) {
-      console.error('노션 저장 오류:', error);
+      console.error('📚 BOOK_SAVE: ERROR', { error });
       return false;
     }
   };
 
   const handleSelectBook = async (book: BookResult) => {
+    console.log('📖 BOOK_SELECT: CLICKED', {
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      cover: book.cover,
+      color: book.color,
+    });
+
     setSelectedBookId(book.id);
     
     // 노션에 저장 시도
     if (config?.token && config?.databaseId) {
+      console.log('📖 BOOK_SELECT: SAVING_TO_NOTION...');
       const saved = await saveToNotion(book);
       setSaveMessage(saved ? 'Saved!' : 'Save failed');
+      console.log('📖 BOOK_SELECT: SAVE_RESULT', { saved });
     } else {
+      console.log('📖 BOOK_SELECT: NO_NOTION_CONFIG - 노션 미연결, 로컬 선택만 처리');
       setSaveMessage('Saved!');
     }
 
