@@ -96,9 +96,10 @@ function getOptimizedImageUrl(thumbnailUrl: string): string {
       return imageUrl;
     }
     
-    return thumbnailUrl;
+    // 썸네일 URL이 http인 경우 https로 보정 (혼합 콘텐츠 방지)
+    return thumbnailUrl.replace(/^http:/, 'https:');
   } catch {
-    return thumbnailUrl;
+    return thumbnailUrl.replace(/^http:/, 'https:');
   }
 }
 

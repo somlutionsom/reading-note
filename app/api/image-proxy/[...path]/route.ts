@@ -47,6 +47,8 @@ export async function GET(
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'image/*',
+        // 일부 CDN은 Referer가 없으면 403을 반환
+        'Referer': `${urlObj.protocol}//${urlObj.host}/`,
       },
     });
 
