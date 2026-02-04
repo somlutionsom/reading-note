@@ -22,6 +22,9 @@ export async function GET(
     const imageUrl = searchParams.get('url');
 
     if (!imageUrl) {
+      console.error('🖼️ IMAGE_PROXY_ERROR: MISSING_URL', {
+        url: request.url,
+      });
       return new NextResponse('Missing url parameter', { status: 400 });
     }
 
@@ -39,8 +42,19 @@ export async function GET(
       suffix => hostname === suffix || hostname.endsWith(`.${suffix}`)
     );
     if (!isAllowed) {
+      console.error('🖼️ IMAGE_PROXY_ERROR: DOMAIN_NOT_ALLOWED', {
+        imageUrl,
+        hostname,
+        allowedHostSuffixes,
+      });
       return new NextResponse('Domain not allowed', { status: 403 });
     }
+
+    console.log('🖼️ IMAGE_PROXY_FETCH: START', {
+      imageUrl,
+      hostname,
+      requestUrl: request.url,
+    });
 
     // 이미지 가져오기
     const response = await fetch(imageUrl, {
@@ -53,11 +67,25 @@ export async function GET(
     });
 
     if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('🖼️ IMAGE_PROXY_ERROR: FETCH_FAILED', {
+        imageUrl,
+        status: response.status,
+        statusText: response.statusText,
+        responseHeaders: Object.fromEntries(response.headers.entries()),
+        errorBody: errorBody.slice(0, 500),
+      });
       return new NextResponse('Failed to fetch image', { status: response.status });
     }
 
     const imageBuffer = await response.arrayBuffer();
     const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+    console.log('🖼️ IMAGE_PROXY_FETCH: SUCCESS', {
+      imageUrl,
+      contentType,
+      size: imageBuffer.byteLength,
+    });
 
     // 이미지 반환 (Notion 호환 헤더 설정)
     return new NextResponse(imageBuffer, {
@@ -71,7 +99,10 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Image proxy error:', error);
+    console.error('🖼️ IMAGE_PROXY_ERROR: UNHANDLED', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return new NextResponse('Internal server error', { status: 500 });
   }
 }
