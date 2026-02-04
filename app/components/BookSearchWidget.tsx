@@ -95,7 +95,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         
         if (data.success && data.data) {
           setResults(data.data);
-          console.log('🖼️ IMAGE_CLIENT_INFO: COVER_URLS', data.data.map((book: BookResult) => ({
+          console.info('🖼️ IMAGE_CLIENT_INFO: COVER_URLS', data.data.map((book: BookResult) => ({
             title: book.title,
             cover: book.cover,
           })));
@@ -116,7 +116,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
 
   // 노션에 도서 저장
   const saveToNotion = async (book: BookResult) => {
-    console.log('📚 BOOK_SAVE: START', {
+    console.info('📚 BOOK_SAVE: START', {
       title: book.title,
       author: book.author,
       cover: book.cover,
@@ -142,7 +142,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           cover: book.cover,
         },
       };
-      console.log('📚 BOOK_SAVE: REQUEST', requestBody);
+      console.info('📚 BOOK_SAVE: REQUEST', requestBody);
 
       const response = await fetch('/api/books/save', {
         method: 'POST',
@@ -166,7 +166,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
       const data = await response.json();
       
       if (data.success) {
-        console.log('📚 BOOK_SAVE: SUCCESS', { pageId: data.data?.pageId });
+        console.info('📚 BOOK_SAVE: SUCCESS', { pageId: data.data?.pageId });
       } else {
         console.error('📚 BOOK_SAVE: FAILED', { error: data.error });
       }
@@ -179,7 +179,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
   };
 
   const handleSelectBook = async (book: BookResult) => {
-    console.log('📖 BOOK_SELECT: CLICKED', {
+    console.info('📖 BOOK_SELECT: CLICKED', {
       id: book.id,
       title: book.title,
       author: book.author,
@@ -191,12 +191,12 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
     
     // 노션에 저장 시도
     if (config?.token && config?.databaseId) {
-      console.log('📖 BOOK_SELECT: SAVING_TO_NOTION...');
+      console.info('📖 BOOK_SELECT: SAVING_TO_NOTION...');
       const saved = await saveToNotion(book);
       setSaveMessage(saved ? 'Saved!' : 'Save failed');
-      console.log('📖 BOOK_SELECT: SAVE_RESULT', { saved });
+      console.info('📖 BOOK_SELECT: SAVE_RESULT', { saved });
     } else {
-      console.log('📖 BOOK_SELECT: NO_NOTION_CONFIG - 노션 미연결, 로컬 선택만 처리');
+      console.info('📖 BOOK_SELECT: NO_NOTION_CONFIG - 노션 미연결, 로컬 선택만 처리');
       setSaveMessage('Saved!');
     }
 
