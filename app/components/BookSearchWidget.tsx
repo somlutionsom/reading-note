@@ -95,6 +95,10 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         
         if (data.success && data.data) {
           setResults(data.data);
+          console.log('🖼️ IMAGE_CLIENT_INFO: COVER_URLS', data.data.map((book: BookResult) => ({
+            title: book.title,
+            cover: book.cover,
+          })));
         }
       } catch (error) {
         console.error('검색 오류:', error);
