@@ -128,21 +128,21 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
     }
 
     try {
-      const requestBody = {
-        token: config.token ? '***설정됨***' : '없음',
-        databaseId: config.databaseId,
+      // 민감 정보 마스킹 (디버깅용)
+      const maskId = (id: string) => id ? `${id.slice(0, 4)}***` : '없음';
+      
+      console.info('📚 BOOK_SAVE: REQUEST', {
+        databaseId: maskId(config.databaseId),
         titleProperty: config.titleProperty,
         authorProperty: config.authorProperty,
         coverProperty: config.coverProperty,
         coverPropertyType: config.coverPropertyType || 'files',
-        statusProperty: config.statusProperty,
         book: {
           title: book.title,
           author: book.author,
           cover: book.cover,
         },
-      };
-      console.info('📚 BOOK_SAVE: REQUEST', requestBody);
+      });
 
       const response = await fetch('/api/books/save', {
         method: 'POST',
@@ -166,7 +166,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
       const data = await response.json();
       
       if (data.success) {
-        console.info('📚 BOOK_SAVE: SUCCESS', { pageId: data.data?.pageId });
+        console.info('📚 BOOK_SAVE: SUCCESS ✅');
       } else {
         console.error('📚 BOOK_SAVE: FAILED', { error: data.error });
       }
