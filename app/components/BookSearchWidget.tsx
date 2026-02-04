@@ -502,7 +502,16 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
                           <div className="book-cover-container">
                             <div className="book-cover" style={{ backgroundColor: book.color }}>
                               {book.cover ? (
-                                <img src={book.cover} alt={book.title} />
+                                <img
+                                  src={book.cover}
+                                  alt={book.title}
+                                  onError={() => {
+                                    console.error('🖼️ IMAGE_CLIENT_ERROR: COVER_LOAD_FAILED', {
+                                      title: book.title,
+                                      cover: book.cover,
+                                    });
+                                  }}
+                                />
                               ) : (
                                 <span style={{ fontSize: "7px", opacity: 0.6, color: theme.primaryColor }}>IMG</span>
                               )}
