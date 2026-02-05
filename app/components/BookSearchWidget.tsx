@@ -358,7 +358,8 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         }
 
         .search-input {
-          flex: 1;
+          flex: 0 0 80%;
+          max-width: 80%;
           border: 1px solid ${theme.primaryColor}25;
           background: transparent;
           padding: 4px 8px;
@@ -368,6 +369,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           border-radius: 4px;
           outline: none;
           transition: border-color 0.2s;
+          box-sizing: border-box;
         }
         
         .search-input::placeholder {
