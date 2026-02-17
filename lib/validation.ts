@@ -102,7 +102,7 @@ export function validateBookItem(data: unknown): Result<BookItem> {
 
   const book = data as Record<string, unknown>;
 
-  if (typeof book.id !== 'number') {
+  if (typeof book.id !== 'string' && typeof book.id !== 'number') {
     return { success: false, error: new Error('Book ID is required') };
   }
 
@@ -113,10 +113,12 @@ export function validateBookItem(data: unknown): Result<BookItem> {
   return {
     success: true,
     data: {
-      id: book.id as number,
+      id: String(book.id),
       title: sanitizeString(book.title as string),
       author: book.author ? sanitizeString(book.author as string) : '',
       cover: book.cover ? String(book.cover) : '',
+      coverOriginal: book.coverOriginal ? String(book.coverOriginal) : undefined,
+      traceId: book.traceId ? String(book.traceId) : undefined,
       color: book.color ? String(book.color) : '#CDE4F5',
       publisher: book.publisher ? sanitizeString(book.publisher as string) : undefined,
       pubDate: book.pubDate ? String(book.pubDate) : undefined,

@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/lib/types';
+import { resolvePublicBaseUrl } from '@/lib/public-base-url';
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,9 +59,8 @@ export async function POST(request: NextRequest) {
       .replace(/\//g, '_')
       .replace(/=/g, '');
 
-    // 프로덕션 URL 고정 사용 (프리뷰 배포 URL은 비공개라 로그인 필요)
-    const PRODUCTION_URL = 'https://somy2kreadingnote.vercel.app';
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || PRODUCTION_URL;
+    // 공개 접근 가능한 고정 베이스 URL 사용
+    const baseUrl = resolvePublicBaseUrl(request.url);
     const embedUrl = `${baseUrl}/todo-widget/${encodedConfig}`;
     
     console.log('🔗 생성된 위젯 URL baseUrl:', baseUrl);

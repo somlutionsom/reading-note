@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { Search, Book, Check, Loader2, ArrowLeft, Clock } from "lucide-react";
 
 interface BookResult {
-  id: number;
+  id: string;
   title: string;
   author: string;
   cover: string;
+  coverOriginal?: string;
+  isbn13?: string;
   color: string;
 }
 
@@ -39,7 +41,7 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<BookResult[]>([]);
-  const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
@@ -114,12 +116,20 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
     }
   };
 
+  const createTraceId = () => {
+    const random = Math.random().toString(36).slice(2, 10);
+    return `book-${Date.now()}-${random}`;
+  };
+
   // 노션에 도서 저장
-  const saveToNotion = async (book: BookResult) => {
+  const saveToNotion = async (book: BookResult, traceId: string) => {
     console.info('📚 BOOK_SAVE: START', {
+      traceId,
       title: book.title,
       author: book.author,
       cover: book.cover,
+      coverOriginal: book.coverOriginal,
+      isbn13: book.isbn13,
     });
 
     if (!config?.token || !config?.databaseId) {
@@ -137,10 +147,13 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         authorProperty: config.authorProperty,
         coverProperty: config.coverProperty,
         coverPropertyType: config.coverPropertyType || 'files',
+        traceId,
         book: {
           title: book.title,
           author: book.author,
           cover: book.cover,
+          coverOriginal: book.coverOriginal,
+          isbn13: book.isbn13,
         },
       });
 
@@ -155,10 +168,13 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
           coverProperty: config.coverProperty,
           coverPropertyType: config.coverPropertyType || 'files',
           statusProperty: config.statusProperty,
+          traceId,
           book: {
             title: book.title,
             author: book.author,
             cover: book.cover,
+            coverOriginal: book.coverOriginal,
+            isbn13: book.isbn13,
           },
         }),
       });
@@ -166,24 +182,33 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
       const data = await response.json();
       
       if (data.success) {
-        console.info('📚 BOOK_SAVE: SUCCESS ✅');
+        console.info('📚 BOOK_SAVE: SUCCESS ✅', {
+          traceId,
+          finalCoverUrl: data?.data?.coverUrlUsed,
+          imageArchived: data?.data?.imageArchived,
+          archiveReason: data?.data?.archiveReason,
+        });
       } else {
-        console.error('📚 BOOK_SAVE: FAILED', { error: data.error });
+        console.error('📚 BOOK_SAVE: FAILED', { traceId, error: data.error });
       }
       
       return data.success;
     } catch (error) {
-      console.error('📚 BOOK_SAVE: ERROR', { error });
+      console.error('📚 BOOK_SAVE: ERROR', { traceId, error });
       return false;
     }
   };
 
   const handleSelectBook = async (book: BookResult) => {
+    const traceId = createTraceId();
     console.info('📖 BOOK_SELECT: CLICKED', {
+      traceId,
       id: book.id,
       title: book.title,
       author: book.author,
       cover: book.cover,
+      coverOriginal: book.coverOriginal,
+      isbn13: book.isbn13,
       color: book.color,
     });
 
@@ -191,10 +216,10 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
     
     // 노션에 저장 시도
     if (config?.token && config?.databaseId) {
-      console.info('📖 BOOK_SELECT: SAVING_TO_NOTION...');
-      const saved = await saveToNotion(book);
+      console.info('📖 BOOK_SELECT: SAVING_TO_NOTION...', { traceId });
+      const saved = await saveToNotion(book, traceId);
       setSaveMessage(saved ? 'Saved!' : 'Save failed');
-      console.info('📖 BOOK_SELECT: SAVE_RESULT', { saved });
+      console.info('📖 BOOK_SELECT: SAVE_RESULT', { traceId, saved });
     } else {
       console.info('📖 BOOK_SELECT: NO_NOTION_CONFIG - 노션 미연결, 로컬 선택만 처리');
       setSaveMessage('Saved!');

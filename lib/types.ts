@@ -16,10 +16,12 @@ export interface NotionConfig {
 
 // 도서 아이템 타입
 export interface BookItem {
-  id: number;
+  id: string;
   title: string;
   author: string;
   cover: string;
+  coverOriginal?: string;
+  traceId?: string;
   color: string;
   publisher?: string;
   pubDate?: string;

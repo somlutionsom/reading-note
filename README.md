@@ -44,6 +44,13 @@ KAKAO_REST_API_KEY=your_kakao_rest_api_key_here
 # Next.js 환경 변수
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 NODE_ENV=development
+
+# 이미지 재호스팅 (권장)
+# 설정 시 저장 시점에 표지 이미지를 Vercel Blob으로 업로드한 영구 URL을 Notion에 저장합니다.
+# 미설정 시 프록시/원본 URL 폴백 모드로 동작합니다.
+BLOB_READ_WRITE_TOKEN=your_vercel_blob_rw_token
+IMAGE_FETCH_TIMEOUT_MS=15000
+IMAGE_STORAGE_MAX_BYTES=10485760
 ```
 
 ## 카카오 REST API 키 발급 방법
@@ -103,6 +110,7 @@ reading-note/
       "title": "책 제목",
       "author": "저자명",
       "cover": "https://...",
+      "coverOriginal": "https://t1.daumcdn.net/...",
       "publisher": "출판사",
       "pubDate": "2024-01-01",
       "description": "도서 소개",
@@ -114,6 +122,13 @@ reading-note/
   "totalResults": 100
 }
 ```
+
+### POST `/api/books/save`
+도서를 Notion 데이터베이스에 저장합니다.
+
+- 1차 안정화: 커버 프록시 URL을 공개 프로덕션 도메인으로 정규화
+- 2차 안정화: `BLOB_READ_WRITE_TOKEN` 설정 시 커버 이미지를 Vercel Blob에 재호스팅
+- Blob 업로드 실패 시 프록시/원본 URL로 자동 폴백
 
 ## 위젯 임베드
 

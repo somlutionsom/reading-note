@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { resolvePublicBaseUrl } from '@/lib/public-base-url';
 
 interface KakaoBook {
   title: string;
@@ -35,6 +36,7 @@ interface BookResult {
   title: string;
   author: string;
   cover: string;
+  coverOriginal?: string;
   color: string;
   publisher?: string;
   pubDate?: string;
@@ -164,9 +166,8 @@ export async function GET(request: NextRequest) {
 
     const data: KakaoBookResponse = await response.json();
 
-    // 베이스 URL 추출 (프록시 이미지 URL 생성용)
-    const requestUrl = new URL(request.url);
-    const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+    // 공개 접근 가능한 베이스 URL 고정 (Notion 외부 접근 안정화)
+    const baseUrl = resolvePublicBaseUrl(request.url);
 
     // 결과 변환 (기존 알라딘 API 응답 형식과 동일하게 유지)
     const books: BookResult[] = (data.documents || []).map((item: KakaoBook, index: number) => {
@@ -177,6 +178,8 @@ export async function GET(request: NextRequest) {
         author: item.authors.join(', '),
         // 이미지 프록시 URL 사용 (.jpg 확장자로 Notion에서 미리보기 표시)
         cover: createProxyImageUrl(originalImageUrl, baseUrl),
+        // 저장 시점 2차 재호스팅 소스로 사용
+        coverOriginal: originalImageUrl,
         color: PASTEL_COLORS[index % PASTEL_COLORS.length],
         publisher: item.publisher,
         pubDate: formatDate(item.datetime),
