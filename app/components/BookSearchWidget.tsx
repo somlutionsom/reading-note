@@ -21,6 +21,7 @@ interface WidgetConfig {
   coverProperty?: string;
   coverPropertyType?: 'files' | 'url' | '';
   statusProperty?: string;
+  darkMode?: boolean;
   theme?: {
     primaryColor?: string;
     accentColor?: string;
@@ -248,8 +249,20 @@ export default function BookSearchWidget({ config, onSelectBook }: BookSearchWid
         @import url('https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
+        html, body {
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+          background: ${config?.darkMode ? '#191919' : 'transparent'} !important;
+          color-scheme: ${config?.darkMode ? 'dark' : 'light'};
+        }
+
         .book-widget-body {
-          background: transparent;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: ${config?.darkMode ? '#191919' : 'transparent'};
           margin: 0;
           padding: 4px 5px 4px 7px;
           padding-top: 7px;

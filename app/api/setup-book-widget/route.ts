@@ -10,15 +10,16 @@ import { resolvePublicBaseUrl } from '@/lib/public-base-url';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
-      token, 
-      databaseId, 
-      titleProperty, 
-      authorProperty, 
+    const {
+      token,
+      databaseId,
+      titleProperty,
+      authorProperty,
       coverProperty,
       coverPropertyType,
       statusProperty,
-      theme 
+      darkMode,
+      theme
     } = body;
 
     if (!token || !databaseId) {
@@ -40,6 +41,7 @@ export async function POST(request: NextRequest) {
       coverProp: coverProperty,
       coverPropType: coverPropertyType ?? 'files',
       statusProp: statusProperty,
+      darkMode: Boolean(darkMode),
       primaryColor: theme?.primaryColor ?? '#6C9AC4',
       accentColor: theme?.accentColor ?? '#B4D4EC',
       backgroundColor: theme?.backgroundColor ?? '#FFFFFF',

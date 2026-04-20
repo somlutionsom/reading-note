@@ -45,6 +45,8 @@ export default function BookWidgetPage({ params }: PageProps) {
         coverProperty: decodedData.coverProp,
         coverPropertyType: decodedData.coverPropType ?? 'files',
         statusProperty: decodedData.statusProp,
+        // 다크모드
+        darkMode: Boolean(decodedData.darkMode),
         // 테마 설정
         theme: {
           primaryColor: decodedData.primaryColor ?? '#6C9AC4',

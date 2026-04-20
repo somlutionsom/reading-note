@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 // --- [내부 컴포넌트] 생성될 위젯 미리보기용 ---
-const PreviewWidget = ({ theme }: { theme: any }) => {
+const PreviewWidget = ({ theme, darkMode }: { theme: any; darkMode: boolean }) => {
   const [view, setView] = useState<'main' | 'search'>('main');
   
   const hexToRgba = (hex: string, alpha: number) => {
@@ -41,6 +41,13 @@ const PreviewWidget = ({ theme }: { theme: any }) => {
   ];
 
   return (
+    <div style={{
+      fontFamily: "'Corbel', 'Malgun Gothic', sans-serif",
+      background: darkMode ? '#191919' : 'transparent',
+      padding: darkMode ? '7px' : '0',
+      borderRadius: darkMode ? '14px' : '0',
+      transition: 'background 0.3s ease',
+    }}>
     <div style={{
       fontFamily: "'Corbel', 'Malgun Gothic', sans-serif",
       background: bgStyle,
@@ -205,6 +212,7 @@ const PreviewWidget = ({ theme }: { theme: any }) => {
         </div>
       )}
     </div>
+    </div>
   );
 };
 
@@ -224,6 +232,7 @@ interface FormData {
   backgroundOpacity: number;
   fontColor: string;
   fontFamily: string;
+  darkMode: boolean;
 }
 
 interface ThemePreset {
@@ -271,6 +280,7 @@ export default function BookOnboardingPage() {
     backgroundOpacity: 95,
     fontColor: '#555555',
     fontFamily: 'Corbel',
+    darkMode: false,
   });
   const [databases, setDatabases] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -386,6 +396,7 @@ export default function BookOnboardingPage() {
           coverProperty: formData.coverProperty,
           coverPropertyType: formData.coverPropertyType,
           statusProperty: formData.statusProperty,
+          darkMode: formData.darkMode,
           theme: {
             primaryColor: formData.primaryColor,
             accentColor: formData.accentColor,
@@ -1035,14 +1046,56 @@ export default function BookOnboardingPage() {
                             <span style={{ fontSize: '12px', color: '#666' }}>배경 투명도</span>
                             <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#6C9AC4' }}>{formData.backgroundOpacity}%</span>
                         </div>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            value={formData.backgroundOpacity} 
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={formData.backgroundOpacity}
                             className="range-slider"
                             onChange={(e) => handleInputChange('backgroundOpacity', parseInt(e.target.value))}
                         />
+                    </div>
+
+                    {/* 다크모드 토글 */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 4px',
+                      marginTop: '16px',
+                      borderTop: '1px solid #f0f0f0',
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '12px', color: '#555', fontWeight: 600, marginBottom: '4px' }}>NOTION DARK MODE</div>
+                        <div style={{ fontSize: '10px', color: '#888', lineHeight: 1.4 }}>
+                          켜면 위젯 바깥 배경색을 노션 다크모드<br/>색상(#191919)으로 맞춥니다.
+                        </div>
+                      </div>
+                      <div
+                        onClick={() => handleInputChange('darkMode', !formData.darkMode)}
+                        style={{
+                          width: '48px',
+                          height: '24px',
+                          borderRadius: '12px',
+                          background: formData.darkMode ? '#6C9AC4' : '#ccc',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          transition: 'background 0.3s ease',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          background: 'white',
+                          position: 'absolute',
+                          top: '2px',
+                          left: formData.darkMode ? '26px' : '2px',
+                          transition: 'left 0.3s ease',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        }} />
+                      </div>
                     </div>
                   </div>
 
@@ -1054,7 +1107,7 @@ export default function BookOnboardingPage() {
                     LIVE PREVIEW
                   </div>
                   
-                  <PreviewWidget 
+                  <PreviewWidget
                     theme={{
                       primaryColor: formData.primaryColor,
                       accentColor: formData.accentColor,
@@ -1062,6 +1115,7 @@ export default function BookOnboardingPage() {
                       fontColor: formData.fontColor,
                       backgroundOpacity: formData.backgroundOpacity
                     }}
+                    darkMode={formData.darkMode}
                   />
 
                   <div style={{ marginTop: '40px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
